@@ -1,0 +1,96 @@
+.chat_container {
+  min-height: 95vh;
+  width: 70vw;
+}
+.chat_box {
+  min-height: 95vh;
+  margin: 10px auto;
+  // width: 800px;
+  border: solid 1px black;
+  border-radius: 10px;
+
+  .chat_reciver {
+    height: 10vh;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    border: none;
+    border-bottom: solid 1px gray;
+    // box-shadow: 0px 1px 10px gray , inherit 0 -1px 10px #00000094;
+    padding: 5px 20px;
+    .image_container {
+      margin-right: 10px;
+      // border: solid 1px red;
+      max-width: 50px;
+      > img {
+        height: 50px;
+        width: 50px;
+        border: solid 2px white;
+        border-radius: 50%;
+      }
+    }
+    .name_container {
+      > p {
+        margin: 0 0;
+        padding: 0 10px;
+        // border: solid 1px red;
+      }
+    }
+  }
+}
+
+.msg_container {
+  height: 80vh;
+  overflow-y: auto;
+
+  > div {
+    width: 96%;
+   font-size: 20px;
+    margin: 10px 2%;
+    display: flex;
+    flex-wrap: nowrap;
+  }
+  .left {
+    justify-content: flex-start;
+    > p {
+      border-radius:0 15px 15px 15px ;
+      padding: 10px 10px;
+      background: rgba(90, 185, 155, 0.489);
+    }
+  }
+  .right {
+    justify-content: flex-end;
+    > p {
+      border-radius:15px 0 15px 15px ;
+      padding: 10px 10px;
+      background: rgba(185, 163, 90, 0.283);
+    }
+  }
+}
+
+.send_box_container {
+  height: 5vh;
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  //   justify-content: flex-start;
+  //  align-items:flex-end;
+  //  margin-top:83vh;
+  border-radius: 10px;
+
+  .send_box {
+    width: 90%;
+    margin: 0;
+    padding: 0;
+    > input {
+      width: 100%;
+      padding: 10px 10px;
+    }
+  }
+  .send_button {
+    padding: 5px 30px;
+    width: 10%;
+    // border: solid 1px red;
+    background: gainsboro;
+  }
+}
