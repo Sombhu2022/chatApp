@@ -86,7 +86,8 @@ export const userSlice = createSlice({
         .addCase(allUsers.fulfilled , (state , action)=>{
             state.status = 'success'
             state.users = action.payload.data.user
-            // console.log(action.payload.data.user)
+            state.user = action.payload.data.loginuser
+            console.log(action.payload.data)
             toast.success(action.payload.data.message);
         })
         .addCase(allUsers.rejected , (state , action)=>{
