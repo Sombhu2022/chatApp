@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import LoginForm from "./pages/auth/login/LoginForm";
 
 
+import './global.css'
 
 function App() {
 

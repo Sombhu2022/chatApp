@@ -1,3 +1,16 @@
-.main_div{
-    max-width:1500px;
+*{
+    margin: 0;
+    padding:0;
+    box-sizing: border-box;
+    
+}
+body{
+    background:linear-gradient( to right ,rgba(2, 2, 145, 0.575) , rgba(118, 2, 118, 0.534));
+}
+:root{
+
+    --black_them_color :rgb(42, 38, 43);
+}
+div{
+    
 }

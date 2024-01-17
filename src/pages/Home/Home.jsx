@@ -12,10 +12,11 @@ import { allUsers, logoutUser } from "../../redux/slice/user/userController";
 import { useNavigate , Link} from "react-router-dom";
 
 function Home() {
-  // const [users, setUsers] = useState();
+  
   const [reciver , setReciver] = useState();
   const dispatch = useDispatch();
   const users = useSelector((state)=>state.users)
+  
   const authenticate = useSelector(state => state.isAuthenticate)
   const navigate = useNavigate();
   
@@ -39,47 +40,41 @@ function Home() {
       })
   }
   useEffect(()=>{
-    if(!authenticate) navigate('/register');
+    // if(!authenticate) navigate('/register');
     allusers();
-  },[authenticate])
+  },[])
 
   const logoutHendaler = ()=>{
       dispatch(logoutUser())
   }
-  // useEffect(() => {
-   
-  //   socket.on('user-connect-msg' , (user)=>{
-  //     console.log("msg from server",user)
-  //    })
-  //    socket.on('wellcome-user' , (user)=>{
-  //     console.log("wellcome user",user);
-  //     })
-     
-  // }, [users]);
+
+
 
   return (
     <div className="main_div home_container">
       <div className="contact_container">
         
         <div className="searchbar">
-        <button onClick={logoutHendaler}>Log out</button>
+        {/* <button onClick={logoutHendaler}>Log out</button> */}
+       
           <input type="text" placeholder="search name" />
           <button>ok</button>
         </div>
         {users &&
           users.map((ele) => {
             return (
-              < >
+              <div  >
                 <Contact  onButtonClick={changeReciver} key={ele._id} name={ele.name} dp={ele.dp.url} email={ele.email} />
-              </>
+              </div>
             );
           })}
       </div>
-      <div className=' chat_container'>
 
+      <div className=' chat_container'>
+      
       {reciver?<Chat name={reciver.name} dp={reciver.dp} email={reciver.email}/>:" select friend"
       }
-      {/* <Chat /> */}
+      
       </div>
     </div>
   );

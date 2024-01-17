@@ -1,8 +1,16 @@
 .home_container{
-    width: 100lvw;
+    max-width:1200px;
+    height: 90vh;
     display:flex;
     flex-wrap: nowrap;
-    // flex-direction:column;
+    margin: 5vh auto;
     justify-content: center;
     align-items: center;
+    border: solid 1px rgba(245, 245, 245, 0.436);
+    border-radius: 10px;
+    background: rgba(245, 245, 245, 0.219);
 }
+.chat_container {
+    // height:100%;
+    width: 70vw;
+  }

@@ -8,18 +8,22 @@ import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import io from "socket.io-client";
 import { base_url } from "../../App";
 import axios from "axios";
+import { useSelector } from "react-redux";
+
+const socket = io("http://localhost:8080/", { transports: ["websocket"] });
 
 
-// const BaseUrl = "http://localhost:5000/";
-// const socket = io(base_url, { transports: ["websoket"] });
 
-function Chat({ name, dp, email }) {
+function Chat({ name, dp, email , key }) {
   const [message, setMessage] = useState();
   const [allMsg, setAllMsg] = useState([]);
-  const [currentUser , setCurrentUser] = useState({});
-  const [onlineUsers , setOnlineUsers] = useState([]);
-  const [serverMsg , setServerMsg]=useState();
-  const socket = useRef(null)
+  const currentUser = useSelector((state) => state.user);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [serverMsg, setServerMsg] = useState([]);
+  const [serverMsgActivate , setServerMsgActivate]=useState(false)
+
+  const [reciverId , setReciverId]=useState()
+
 
   const messageHandaler = (e) => {
     setMessage(e.target.value);
@@ -28,7 +32,9 @@ function Chat({ name, dp, email }) {
   const reciver = {
     name: name,
     email: email,
-  }; 
+  };
+
+
 
   const allMessage = async () => {
     try {
@@ -43,43 +49,48 @@ function Chat({ name, dp, email }) {
         }
       );
       setAllMsg(data.data.chat);
-      setCurrentUser(data.data.user)
-      console.log(data.data.user);    
-    } catch ( error ) {
+      // setCurrentUser(data.data.user)
+      // console.log(data.data.user);
+    } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
     allMessage();
-   
+    onlineUsers.forEach((value)=>{
+      if(value.user.email === reciver.email){
+        console.log("soket id is " , value.socketId , value.user)
+        setReciverId(value.socketId)
+      }
+    })
+  }, [reciver.email]);
+
+  // console.log(currentUser);
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("user connect", socket.id);
+    });
+
+    socket.emit("user-join", currentUser);
+
+    socket.on("wellcome-user", (users) => {
+      console.log("wellcome to chat room", users); // x8WIv7-mJelg7on_ALbx
+    });
+
+    socket.on("user_connect_msg", (users) => {
+      console.log("online user are", users); // x8WIv7-mJelg7on_ALbx
+      setOnlineUsers(users);
+    });
   }, []);
 
+ 
 
-  console.log(currentUser);
-  useEffect(()=>{
-    
-    socket.current = io(base_url , { transports:['websocket']})
-    socket.current.on('connect' , (user)=>{
-       console.log(user);})
 
-  socket.current.emit('user-join' , currentUser)
-  socket.current.on("user-join", (users) => {
-
-    console.log(users); // x8WIv7-mJelg7on_ALbx
-    setOnlineUsers(users)
-  });
-},[currentUser])
-
-console.log(onlineUsers)
-
-  // socket.current.on('msg_show' ,(message)=>{
-  //   setServerMsg(serverMsg.push(message))
-  // })
-
-  const sendMessage = async () => {
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    socket.emit("msg-send", { message, reciver, currentUser , reciverId   });
     try {
-      socket.current.emit('msg-send' ,  { message, reciver }  )
       const data = await axios.post(
         `${base_url}/chat`,
         { message, reciver },
@@ -89,74 +100,82 @@ console.log(onlineUsers)
           },
           withCredentials: true,
         }
-      );
+        );
+      setServerMsgActivate(true)
+      
       console.log(data.data);
     } catch (error) {
       console.log(error);
     }
   };
 
+  useEffect(()=>{
+    socket.on("msg_show", (ioMsg) => {
+      console.log("io message", ioMsg);
+      setServerMsg(ioMsg);
+    });
+    setMessage(" ")
+
+  } ,[serverMsgActivate])
+
   return (
     <div className="chat_box">
-      <ChatReciver name={name} dp={dp} />
+      <ChatReciver name={name} dp={dp}  />
 
       <div className="msg_container">
-      {allMsg?.map((ele) => {
-        if (ele.sender.name === reciver.name) {
-          return (
-            <div className="left">
-              <p >
-             
-              {ele.message}
-              </p>
-            </div>
-          );
-        } else {
-          return (
-            <div className="right">
-              <p >
-              {ele.message}
-              </p>
-            </div>
-          );
-        }
-     })}
-       {serverMsg?.map((ele)=>{
-        if (ele.reciver === reciver) {
-          return (
-            <div className="left">
-              <p >
-              
-              <span>{ele.message.message}</span>
-              </p>
-            </div>
-          );
-        } else {
-          return (
-            <div className="right">
-              <p >
-              
-              <span>{ele.message.message}</span>
-              </p>
-            </div>
-          );
-        }
-      })}
+        {allMsg?.map((ele) => {
+          if (ele.sender.name === reciver.name) {
+            return (
+              <div className="left">
+                <p>{ele.message}</p>
+              </div>
+            );
+          } else if (ele.reciver.name === reciver.name) {
+            return (
+              <div className="right">
+                <p>{ele.message}</p>
+              </div>
+            );
+          }
+        })}
+
+        {
+        serverMsg?.map((ele) => {
+          if (ele.msg.currentUser.email === reciver.email ) {
+            return (
+              <div className="left">
+                <p>{ele.msg.message}</p>
+              </div>
+            );
+          } else if (ele.msg.reciver.email === reciver.email ) {
+            return (
+              <div className="right">
+                <p>{ele.msg.message}</p>
+              </div>
+            );
+          }
+        })}
       
+
+
+
       </div>
-      
+
       <div className="send_box_container">
-        <div className="send_box">
+        <form action="">
+
           <input
             type="text"
             placeholder="Message..."
             onChange={messageHandaler}
             value={message}
+            
           />
-        </div>
-        <div className="send_button" onClick={sendMessage}>
-          <FontAwesomeIcon icon={faPaperPlane} />
-        </div>
+        <button type="submit" className="send_button" onClick={sendMessage}>
+          <FontAwesomeIcon icon={faPaperPlane}  className="icon"/>
+        </button>
+        </form>
+          
       </div>
     </div>
   );
