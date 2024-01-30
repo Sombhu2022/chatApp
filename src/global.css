@@ -9,7 +9,7 @@ body{
 }
 :root{
 
-    --black_them_color :rgb(42, 38, 43);
+    --black_them_color :rgba(42, 38, 43, 0.817);
 }
 div{
     

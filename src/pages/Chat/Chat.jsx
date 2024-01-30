@@ -20,9 +20,11 @@ function Chat({ name, dp, email , key }) {
   const currentUser = useSelector((state) => state.user);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [serverMsg, setServerMsg] = useState([]);
-  const [serverMsgActivate , setServerMsgActivate]=useState(false)
+  const [serverMsgActivate , setServerMsgActivate]=useState()
 
   const [reciverId , setReciverId]=useState()
+
+  const [activeSocket , setActiveSocket]=useState()
 
 
   const messageHandaler = (e) => {
@@ -58,9 +60,10 @@ function Chat({ name, dp, email , key }) {
 
   useEffect(() => {
     allMessage();
+
     onlineUsers.forEach((value)=>{
       if(value.user.email === reciver.email){
-        console.log("soket id is " , value.socketId , value.user)
+        console.log("sending soket id is " , value.socketId , value.user)
         setReciverId(value.socketId)
       }
     })
@@ -76,20 +79,30 @@ function Chat({ name, dp, email , key }) {
 
     socket.on("wellcome-user", (users) => {
       console.log("wellcome to chat room", users); // x8WIv7-mJelg7on_ALbx
+      setActiveSocket(users)
     });
+    // return()=>{
+    //     socket.disconnect()
+    //     setActiveSocket("")
+    // }
 
+  }, []);
+  
+  //check online user ...
+  useEffect(()=>{
+    
     socket.on("user_connect_msg", (users) => {
       console.log("online user are", users); // x8WIv7-mJelg7on_ALbx
       setOnlineUsers(users);
     });
-  }, []);
+  },[activeSocket])
 
  
 
 
   const sendMessage = async (e) => {
     e.preventDefault();
-    socket.emit("msg-send", { message, reciver, currentUser , reciverId   });
+    socket.emit("msg-send", { message, reciver, currentUser, activeSocket , reciverId });
     try {
       const data = await axios.post(
         `${base_url}/chat`,
@@ -101,7 +114,7 @@ function Chat({ name, dp, email , key }) {
           withCredentials: true,
         }
         );
-      setServerMsgActivate(true)
+      setServerMsgActivate(data.data.message)
       
       console.log(data.data);
     } catch (error) {
@@ -110,9 +123,9 @@ function Chat({ name, dp, email , key }) {
   };
 
   useEffect(()=>{
-    socket.on("msg_show", (ioMsg) => {
-      console.log("io message", ioMsg);
-      setServerMsg(ioMsg);
+    socket.on('msg_show', (ioMsg) => {
+      setServerMsg([...serverMsg , ioMsg]);
+      console.log("io message", serverMsg);
     });
     setMessage(" ")
 
@@ -124,13 +137,13 @@ function Chat({ name, dp, email , key }) {
 
       <div className="msg_container">
         {allMsg?.map((ele) => {
-          if (ele.sender.name === reciver.name) {
+          if (ele.sender.email === reciver.email) {
             return (
               <div className="left">
                 <p>{ele.message}</p>
               </div>
             );
-          } else if (ele.reciver.name === reciver.name) {
+          } else if (ele.reciver.email === reciver.email) {
             return (
               <div className="right">
                 <p>{ele.message}</p>
@@ -139,7 +152,7 @@ function Chat({ name, dp, email , key }) {
           }
         })}
 
-        {
+        {/* {
         serverMsg?.map((ele) => {
           if (ele.msg.currentUser.email === reciver.email ) {
             return (
@@ -154,7 +167,7 @@ function Chat({ name, dp, email , key }) {
               </div>
             );
           }
-        })}
+        })} */}
       
 
 
